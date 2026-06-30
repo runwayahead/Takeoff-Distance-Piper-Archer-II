@@ -1,0 +1,1292 @@
+/*
+========================================================
+
+TakeoffPro V2.1
+
+ForeFlight Inspired
+
+Part 1
+
+========================================================
+*/
+
+/*
+========================================================
+Reset
+
+========================================================
+*/
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+html{
+
+    height:100%;
+
+}
+
+body{
+
+    min-height:100vh;
+
+    font-family:
+
+        -apple-system,
+
+        BlinkMacSystemFont,
+
+        "SF Pro Display",
+
+        "Segoe UI",
+
+        Roboto,
+
+        sans-serif;
+
+    background:#0f172a;
+
+    color:#f8fafc;
+
+}
+
+
+
+/*
+========================================================
+Variables
+
+========================================================
+*/
+
+:root{
+
+    --background:#0f172a;
+
+    --card:#1e293b;
+
+    --cardHover:#273449;
+
+    --border:#334155;
+
+    --blue:#3b82f6;
+
+    --text:#f8fafc;
+
+    --textSecondary:#cbd5e1;
+
+    --safe:#16a34a;
+
+    --caution:#f59e0b;
+
+    --danger:#dc2626;
+
+}
+
+
+
+/*
+========================================================
+App
+
+========================================================
+*/
+
+.app{
+
+    max-width:1600px;
+
+    margin:auto;
+
+    padding:24px;
+
+}
+
+
+
+/*
+========================================================
+Header
+
+========================================================
+*/
+
+.topHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:24px;
+
+    padding:20px 24px;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+}
+
+
+
+.topHeader h1{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+}
+
+
+
+.topHeader p{
+
+    margin-top:4px;
+
+    color:var(--textSecondary);
+
+    font-size:15px;
+
+}
+
+
+
+/*
+========================================================
+Status
+
+========================================================
+*/
+
+.statusBadge{
+
+    min-width:140px;
+
+    text-align:center;
+
+    padding:14px;
+
+    border-radius:14px;
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+
+
+.safe{
+
+    background:rgba(22,163,74,.20);
+
+    color:#4ade80;
+
+}
+
+
+
+.caution{
+
+    background:rgba(245,158,11,.20);
+
+    color:#fbbf24;
+
+}
+
+
+
+.danger{
+
+    background:rgba(220,38,38,.20);
+
+    color:#f87171;
+
+}
+
+
+
+/*
+========================================================
+Grid
+
+========================================================
+*/
+
+.topGrid,
+
+.middleGrid{
+
+    display:grid;
+
+    gap:18px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.topGrid{
+
+    grid-template-columns:
+
+        repeat(3,1fr);
+
+}
+
+
+
+.middleGrid{
+
+    grid-template-columns:
+
+        repeat(3,1fr);
+
+}
+
+
+
+/*
+========================================================
+Card
+
+========================================================
+*/
+
+.card{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    padding:22px;
+
+    transition:.25s;
+
+}
+
+
+
+.card:hover{
+
+    background:var(--cardHover);
+
+}
+
+
+
+/*
+========================================================
+Titles
+
+========================================================
+*/
+
+.card h2{
+
+    margin-bottom:18px;
+
+    font-size:20px;
+
+    color:var(--blue);
+
+    font-weight:700;
+
+}
+/*
+========================================================
+Labels
+
+========================================================
+*/
+
+label{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    margin-bottom:18px;
+
+    font-size:14px;
+
+    color:var(--textSecondary);
+
+    font-weight:500;
+
+}
+
+
+
+/*
+========================================================
+Inputs
+
+========================================================
+*/
+
+input,
+
+select{
+
+    width:100%;
+
+    height:56px;
+
+    padding:0 16px;
+
+    border-radius:14px;
+
+    border:1px solid var(--border);
+
+    background:#111827;
+
+    color:var(--text);
+
+    font-size:20px;
+
+    font-weight:600;
+
+    outline:none;
+
+    transition:.25s;
+
+    appearance:none;
+
+}
+
+
+
+input:focus,
+
+select:focus{
+
+    border-color:var(--blue);
+
+    box-shadow:0 0 0 3px rgba(59,130,246,.25);
+
+}
+
+
+
+input:hover,
+
+select:hover{
+
+    border-color:var(--blue);
+
+}
+
+
+
+/*
+========================================================
+Result Rows
+
+========================================================
+*/
+
+.resultRow{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 0;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+
+}
+
+
+
+.resultRow:last-child{
+
+    border-bottom:none;
+
+}
+
+
+
+.resultRow span{
+
+    color:var(--textSecondary);
+
+    font-size:15px;
+
+}
+
+
+
+.resultRow strong{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+
+/*
+========================================================
+Info Box
+
+========================================================
+*/
+
+.infoBox{
+
+    margin-top:12px;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    background:rgba(59,130,246,.12);
+
+    border:1px solid rgba(59,130,246,.25);
+
+    color:#93c5fd;
+
+    font-size:15px;
+
+    line-height:1.5;
+
+}
+
+
+
+/*
+========================================================
+Warnings
+
+========================================================
+*/
+
+.warning{
+
+    margin-top:16px;
+
+    min-height:24px;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+}
+
+
+
+.warning:empty{
+
+    display:none;
+
+}
+
+
+
+/*
+========================================================
+Select Arrow
+
+========================================================
+*/
+
+select{
+
+    background-image:
+
+        linear-gradient(45deg,transparent 50%,#94a3b8 50%),
+
+        linear-gradient(135deg,#94a3b8 50%,transparent 50%);
+
+    background-position:
+
+        calc(100% - 22px) 24px,
+
+        calc(100% - 14px) 24px;
+
+    background-size:8px 8px;
+
+    background-repeat:no-repeat;
+
+}
+
+
+
+/*
+========================================================
+Small Info
+
+========================================================
+*/
+
+.smallInfo{
+
+    color:var(--textSecondary);
+
+    font-size:14px;
+
+    margin-top:10px;
+
+}
+
+
+
+/*
+========================================================
+Details
+
+========================================================
+*/
+
+details{
+
+    width:100%;
+
+}
+
+
+
+summary{
+
+    cursor:pointer;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    color:var(--blue);
+
+    margin-bottom:14px;
+
+    user-select:none;
+
+}
+
+
+
+summary:hover{
+
+    color:#60a5fa;
+
+}
+
+
+
+/*
+========================================================
+Calculation Tree
+
+========================================================
+*/
+
+.calculationTree{
+
+    white-space:pre-wrap;
+
+    font-family:
+
+        SFMono-Regular,
+
+        Consolas,
+
+        monospace;
+
+    font-size:14px;
+
+    line-height:1.7;
+
+    color:#cbd5e1;
+
+    padding-top:12px;
+
+}
+/*
+========================================================
+Performance Card
+
+========================================================
+*/
+
+.performanceCard{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:24px;
+
+    margin-bottom:24px;
+
+    padding:28px;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+}
+
+
+
+.performanceBox{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    min-height:190px;
+
+}
+
+
+
+.performanceTitle{
+
+    font-size:18px;
+
+    font-weight:600;
+
+    letter-spacing:1px;
+
+    color:var(--textSecondary);
+
+    text-transform:uppercase;
+
+    margin-bottom:18px;
+
+}
+
+
+
+.performanceValue{
+
+    font-size:68px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+    line-height:1;
+
+}
+
+
+
+.highlightValue{
+
+    color:var(--blue);
+
+}
+
+
+
+.performanceDivider{
+
+    display:none;
+
+}
+
+
+
+/*
+========================================================
+Safety Card
+
+========================================================
+*/
+
+.safetyCard{
+
+    margin-bottom:24px;
+
+}
+
+
+
+.safetyGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:18px;
+
+}
+
+
+
+.safetyItem{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    padding:24px;
+
+    text-align:center;
+
+}
+
+
+
+.safetyLabel{
+
+    font-size:14px;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+
+    color:var(--textSecondary);
+
+    margin-bottom:14px;
+
+}
+
+
+
+.safetyValue{
+
+    font-size:42px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+
+.statusBox{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+}
+
+
+
+.statusLarge{
+
+    font-size:38px;
+
+    font-weight:800;
+
+    padding:16px;
+
+    border-radius:16px;
+
+}
+
+
+
+/*
+========================================================
+Status Colors
+
+========================================================
+*/
+
+.statusLarge.safe{
+
+    background:rgba(22,163,74,.20);
+
+    color:#4ade80;
+
+}
+
+
+
+.statusLarge.caution{
+
+    background:rgba(245,158,11,.20);
+
+    color:#fbbf24;
+
+}
+
+
+
+.statusLarge.danger{
+
+    background:rgba(220,38,38,.20);
+
+    color:#f87171;
+
+}
+
+
+
+/*
+========================================================
+Hover Effects
+
+========================================================
+*/
+
+.performanceCard:hover,
+
+.safetyItem:hover,
+
+.card:hover{
+
+    transform:translateY(-2px);
+
+    transition:.25s;
+
+}
+
+
+
+/*
+========================================================
+Animation
+
+========================================================
+*/
+
+.performanceValue,
+
+.safetyValue,
+
+.statusLarge{
+
+    transition:.3s ease;
+
+}
+
+
+
+/*
+========================================================
+Large iPad Layout
+
+========================================================
+*/
+
+@media(min-width:1200px){
+
+    .performanceValue{
+
+        font-size:76px;
+
+    }
+
+}
+/*
+========================================================
+Footer
+
+========================================================
+*/
+
+.appFooter{
+
+    margin-top:28px;
+
+    padding:24px;
+
+    text-align:center;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    color:var(--textSecondary);
+
+    font-size:14px;
+
+    line-height:2;
+
+}
+
+.appFooter strong{
+
+    color:var(--text);
+
+    font-size:18px;
+
+}
+
+
+
+/*
+========================================================
+Responsive
+
+iPad Portrait
+
+========================================================
+*/
+
+@media(max-width:1100px){
+
+    .topGrid{
+
+        grid-template-columns:
+
+            repeat(2,1fr);
+
+    }
+
+    .middleGrid{
+
+        grid-template-columns:
+
+            repeat(2,1fr);
+
+    }
+
+    .performanceCard{
+
+        grid-template-columns:
+
+            1fr;
+
+    }
+
+    .safetyGrid{
+
+        grid-template-columns:
+
+            repeat(2,1fr);
+
+    }
+
+}
+
+
+
+/*
+========================================================
+Responsive
+
+Phone
+
+========================================================
+*/
+
+@media(max-width:768px){
+
+    .app{
+
+        padding:14px;
+
+    }
+
+    .topHeader{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:18px;
+
+    }
+
+    .topGrid,
+
+    .middleGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .safetyGrid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .performanceCard{
+
+        grid-template-columns:1fr;
+
+        padding:20px;
+
+    }
+
+    .performanceBox{
+
+        min-height:140px;
+
+    }
+
+    .performanceValue{
+
+        font-size:52px;
+
+    }
+
+    .safetyValue{
+
+        font-size:34px;
+
+    }
+
+}
+
+
+
+/*
+========================================================
+Touch Optimisation
+
+========================================================
+*/
+
+input,
+
+select,
+
+button{
+
+    -webkit-tap-highlight-color:
+
+        transparent;
+
+}
+
+
+
+input,
+
+select{
+
+    touch-action:manipulation;
+
+}
+
+
+
+/*
+========================================================
+Scrollbar
+
+========================================================
+*/
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#0f172a;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#334155;
+
+    border-radius:8px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#475569;
+
+}
+
+
+
+/*
+========================================================
+Transitions
+
+========================================================
+*/
+
+.card,
+
+.performanceCard,
+
+.safetyItem,
+
+.statusBadge,
+
+.statusLarge,
+
+input,
+
+select{
+
+    transition:
+
+        background .25s,
+
+        border-color .25s,
+
+        transform .25s,
+
+        color .25s,
+
+        box-shadow .25s;
+
+}
+
+
+
+/*
+========================================================
+Focus
+
+========================================================
+*/
+
+*:focus-visible{
+
+    outline:2px solid var(--blue);
+
+    outline-offset:2px;
+
+}
+
+
+
+/*
+========================================================
+Performance Numbers
+
+========================================================
+*/
+
+#groundRoll,
+
+#takeoffDistance,
+
+#finalDistance{
+
+    font-variant-numeric:
+
+        tabular-nums;
+
+}
+
+
+
+/*
+========================================================
+Landscape iPad Optimisation
+
+========================================================
+*/
+
+@media(min-width:1200px){
+
+    body{
+
+        overflow-x:hidden;
+
+    }
+
+    .app{
+
+        min-height:100vh;
+
+        display:flex;
+
+        flex-direction:column;
+
+    }
+
+}
+
+
+
+/*
+========================================================
+Print
+
+========================================================
+*/
+
+@media print{
+
+    body{
+
+        background:white;
+
+        color:black;
+
+    }
+
+    .card,
+
+    .performanceCard,
+
+    .safetyItem,
+
+    .appFooter{
+
+        border:1px solid #999;
+
+        box-shadow:none;
+
+    }
+
+}
+
+
+
+/*
+========================================================
+Version
+
+========================================================
+*/
+
+.version{
+
+    opacity:.6;
+
+    font-size:12px;
+
+}

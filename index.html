@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+    <title>TakeoffPro</title>
+
+    <meta name="theme-color" content="#111827">
+
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ===================================================== -->
+    <!-- Header -->
+    <!-- ===================================================== -->
+
+    <header class="topHeader">
+
+        <div>
+
+            <h1>TakeoffPro</h1>
+
+            <p>C172 TAE125-02-114</p>
+
+        </div>
+
+        <div id="statusBadge" class="statusBadge safe">
+
+            SAFE
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ===================================================== -->
+    <!-- Top Grid -->
+    <!-- ===================================================== -->
+
+    <div class="topGrid">
+
+        <!-- ================================================= -->
+        <!-- Aircraft -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>✈ Aircraft</h2>
+
+            <label>
+
+                Takeoff Weight (kg)
+
+                <input
+
+                    id="weight"
+
+                    type="number"
+
+                    value="1157"
+
+                    min="0"
+
+                    step="1"
+
+                >
+
+            </label>
+
+            <div
+
+                id="weightInterpolation"
+
+                class="infoBox">
+
+                AFM 1157 kg
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- Weather -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>☁ Weather</h2>
+
+            <label>
+
+                OAT (°C)
+
+                <input
+
+                    id="temperature"
+
+                    type="number"
+
+                    value="20">
+
+            </label>
+
+            <label>
+
+                QNH (hPa)
+
+                <input
+
+                    id="qnh"
+
+                    type="number"
+
+                    value="1013">
+
+            </label>
+
+            <label>
+
+                Airport Elevation (ft)
+
+                <input
+
+                    id="elevation"
+
+                    type="number"
+
+                    value="0">
+
+            </label>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- Runway -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>🛬 Runway</h2>
+
+            <label>
+
+                Runway Heading
+
+                <input
+
+                    id="runwayHeading"
+
+                    type="number"
+
+                    value="0">
+
+            </label>
+
+            <label>
+
+                Runway Length (m)
+
+                <input
+
+                    id="runwayLength"
+
+                    type="number"
+
+                    value="800">
+
+            </label>
+
+            <label>
+
+                Slope (%)
+
+                <input
+
+                    id="slope"
+
+                    type="number"
+
+                    step="0.1"
+
+                    value="0">
+
+            </label>
+
+        </section>
+
+    </div>
+    <!-- ===================================================== -->
+    <!-- Second Grid -->
+    <!-- ===================================================== -->
+
+    <div class="middleGrid">
+
+        <!-- ================================================= -->
+        <!-- Wind -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>🌬 Wind</h2>
+
+            <label>
+
+                Wind Direction
+
+                <input
+                    id="windDirection"
+                    type="number"
+                    value="0">
+
+            </label>
+
+            <label>
+
+                Wind Speed (kt)
+
+                <input
+                    id="windSpeed"
+                    type="number"
+                    value="0">
+
+            </label>
+
+            <div class="resultRow">
+
+                <span>
+
+                    Head / Tailwind
+
+                </span>
+
+                <strong id="headwind">
+
+                    0 kt
+
+                </strong>
+
+            </div>
+
+            <div class="resultRow">
+
+                <span>
+
+                    Crosswind
+
+                </span>
+
+                <strong id="crosswind">
+
+                    0 kt
+
+                </strong>
+
+            </div>
+
+            <div
+
+                id="windWarning"
+
+                class="warning">
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- Atmosphere Result -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>🌍 Atmosphere</h2>
+
+            <div class="resultRow">
+
+                <span>
+
+                    Pressure Altitude
+
+                </span>
+
+                <strong id="pressureAltitude">
+
+                    0 ft
+
+                </strong>
+
+            </div>
+
+            <div class="resultRow">
+
+                <span>
+
+                    Density Altitude
+
+                </span>
+
+                <strong id="densityAltitude">
+
+                    0 ft
+
+                </strong>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================= -->
+        <!-- Surface & Procedure -->
+        <!-- ================================================= -->
+
+        <section class="card">
+
+            <h2>⚙ Configuration</h2>
+
+            <label>
+
+                Surface
+
+                <select id="surface">
+
+                    <option value="asphalt">
+
+                        Asphalt
+
+                    </option>
+
+                    <option value="grass">
+
+                        Grass
+
+                    </option>
+
+                    <option value="grasswet">
+
+                        Grass Wet
+
+                    </option>
+
+                    <option value="contaminated">
+
+                        Contaminated
+
+                    </option>
+
+                </select>
+
+            </label>
+
+            <label>
+
+                Procedure
+
+                <select id="procedure">
+
+                    <option value="normal">
+
+                        Normal
+
+                    </option>
+
+                    <option value="short">
+
+                        Short Field
+
+                    </option>
+
+                </select>
+
+            </label>
+
+        </section>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- Performance -->
+    <!-- ===================================================== -->
+
+    <section class="performanceCard">
+
+        <div class="performanceBox">
+
+            <div class="performanceTitle">
+
+                Ground Roll
+
+            </div>
+
+            <div
+
+                id="groundRoll"
+
+                class="performanceValue">
+
+                0 m
+
+            </div>
+
+        </div>
+
+
+
+        <div class="performanceDivider"></div>
+
+
+
+        <div class="performanceBox">
+
+            <div class="performanceTitle">
+
+                15 m Obstacle
+
+            </div>
+
+            <div
+
+                id="takeoffDistance"
+
+                class="performanceValue">
+
+                0 m
+
+            </div>
+
+        </div>
+
+
+
+        <div class="performanceDivider"></div>
+
+
+
+        <div class="performanceBox">
+
+            <div class="performanceTitle">
+
+                Final Required
+
+            </div>
+
+            <div
+
+                id="finalDistance"
+
+                class="performanceValue highlightValue">
+
+                0 m
+
+            </div>
+
+        </div>
+
+    </section>
+    <!-- ===================================================== -->
+    <!-- Safety -->
+    <!-- ===================================================== -->
+
+    <section class="safetyCard">
+
+        <div class="safetyGrid">
+
+            <div class="safetyItem">
+
+                <div class="safetyLabel">
+
+                    Runway Available
+
+                </div>
+
+                <div class="safetyValue">
+
+                    <span id="runwayAvailableDisplay">
+
+                        --
+
+                    </span>
+
+                    m
+
+                </div>
+
+            </div>
+
+
+
+            <div class="safetyItem">
+
+                <div class="safetyLabel">
+
+                    Final Required
+
+                </div>
+
+                <div class="safetyValue">
+
+                    <span id="finalRequiredDisplay">
+
+                        --
+
+                    </span>
+
+                    m
+
+                </div>
+
+            </div>
+
+
+
+            <div class="safetyItem">
+
+                <div class="safetyLabel">
+
+                    Remaining
+
+                </div>
+
+                <div class="safetyValue">
+
+                    <span id="remainingDistance">
+
+                        0
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="safetyItem statusBox">
+
+                <div class="safetyLabel">
+
+                    Status
+
+                </div>
+
+                <div id="statusBadge" class="statusLarge">
+
+                    SAFE
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- Details -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+
+        <details open>
+
+            <summary>
+
+                Calculation Details
+
+            </summary>
+
+            <div
+
+                id="calculationTree"
+
+                class="calculationTree">
+
+                Waiting...
+
+            </div>
+
+        </details>
+
+    </section>
+
+
+
+    <!-- ===================================================== -->
+    <!-- AFM Information -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+
+        <h2>
+
+            AFM Information
+
+        </h2>
+
+        <div class="resultRow">
+
+            <span>
+
+                Aircraft
+
+            </span>
+
+            <strong>
+
+                C172 TAE125-02-114
+
+            </strong>
+
+        </div>
+
+        <div class="resultRow">
+
+            <span>
+
+                AFM Tables
+
+            </span>
+
+            <strong>
+
+                1111 / 1134 / 1157 kg
+
+            </strong>
+
+        </div>
+
+        <div class="resultRow">
+
+            <span>
+
+                Weight Logic
+
+            </span>
+
+            <strong>
+
+                &lt;1111 kg = 1111 kg AFM
+
+            </strong>
+
+        </div>
+
+        <div class="resultRow">
+
+            <span>
+
+                Interpolation
+
+            </span>
+
+            <strong>
+
+                Weight / PA / Temp
+
+            </strong>
+
+        </div>
+
+    </section>
+    <!-- ===================================================== -->
+    <!-- Footer -->
+    <!-- ===================================================== -->
+
+    <footer class="appFooter">
+
+        <div>
+
+            <strong>
+
+                TakeoffPro V2.1
+
+            </strong>
+
+        </div>
+
+        <div>
+
+            C172 TAE125-02-114
+
+        </div>
+
+        <div>
+
+            AFM Based Performance Calculator
+
+        </div>
+
+        <div>
+
+            Offline Progressive Web App
+
+        </div>
+
+    </footer>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- Scripts -->
+<!-- ===================================================== -->
+
+<script src="afm-data.js"></script>
+
+<script src="interpolation.js"></script>
+
+<script src="atmosphere.js"></script>
+
+<script src="wind.js"></script>
+
+<script src="performance.js"></script>
+
+<script src="app.js"></script>
+
+<script>
+
+/*
+========================================================
+Mirror values to Safety Card
+
+========================================================
+*/
+
+function updateDisplayValues(){
+
+    const finalValue=document.getElementById(
+
+        "finalDistance"
+
+    );
+
+    const runwayLength=document.getElementById(
+
+        "runwayLength"
+
+    );
+
+    const finalDisplay=document.getElementById(
+
+        "finalRequiredDisplay"
+
+    );
+
+    const runwayDisplay=document.getElementById(
+
+        "runwayAvailableDisplay"
+
+    );
+
+    if(finalValue && finalDisplay){
+
+        finalDisplay.innerHTML=
+
+            finalValue.innerHTML.replace(" m","");
+
+    }
+
+    if(runwayLength && runwayDisplay){
+
+        runwayDisplay.innerHTML=
+
+            runwayLength.value;
+
+    }
+
+}
+
+/*
+========================================================
+Service Worker
+
+========================================================
+*/
+
+if(
+
+    "serviceWorker"
+
+    in
+
+    navigator
+
+){
+
+    navigator.serviceWorker.register(
+
+        "service-worker.js"
+
+    );
+
+}
+
+/*
+========================================================
+Live Update
+
+========================================================
+*/
+
+window.addEventListener(
+
+    "load",
+
+    function(){
+
+        updateDisplayValues();
+
+        setInterval(
+
+            updateDisplayValues,
+
+            300
+
+        );
+
+    }
+
+);
+
+</script>
+
+</body>
+
+</html>
