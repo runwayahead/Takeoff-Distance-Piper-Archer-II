@@ -27,6 +27,7 @@ export const AFM_DATA = {
     40,
     50
   ],
+  flapsUp: {
 
   groundRoll: {
 
