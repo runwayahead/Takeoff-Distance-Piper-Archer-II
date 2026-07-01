@@ -1,94 +1,87 @@
-function lerp(a, b, t) {
+/*
+========================================================
+
+TakeoffPro V3.0
+
+interpolation.js
+
+Piper PA-28-181 Archer II
+
+Linear interpolation
+Linear extrapolation (1089 → 1157 kg)
+
+========================================================
+*/
+
+
+/*
+========================================================
+Linear interpolation
+========================================================
+*/
+
+function lerp(a, b, t){
+
     return a + (b - a) * t;
+
 }
 
-function bounds(value, array) {
 
-    /*
-    ---------------------------------------
-    Extrapolation below minimum
-    ---------------------------------------
-    */
 
-    if (value < array[0]) {
+/*
+========================================================
+Find Bounds
 
-        return {
+Returns:
 
-            low: array[0],
+lowIndex
+highIndex
+ratio
 
-            high: array[1],
+========================================================
+*/
 
-            ratio:
+function findBounds(value, values){
 
-                (value - array[0]) /
+    if(value <= values[0]){
 
-                (array[1] - array[0])
+        return{
 
-        };
+            lowIndex:0,
 
-    }
+            highIndex:0,
 
-    /*
-    ---------------------------------------
-    Exact minimum
-    ---------------------------------------
-    */
-
-    if (value === array[0]) {
-
-        return {
-
-            low: array[0],
-
-            high: array[0],
-
-            ratio: 0
+            ratio:0
 
         };
 
     }
 
-    /*
-    ---------------------------------------
-    Above maximum
-    ---------------------------------------
-    */
 
-    if (value >= array[array.length - 1]) {
 
-        return {
+    for(let i=0;i<values.length-1;i++){
 
-            low: array[array.length - 1],
+        if(
 
-            high: array[array.length - 1],
+            value>=values[i] &&
 
-            ratio: 0
+            value<=values[i+1]
 
-        };
+        ){
 
-    }
+            return{
 
-    /*
-    ---------------------------------------
-    Normal interpolation
-    ---------------------------------------
-    */
+                lowIndex:i,
 
-    for (let i = 0; i < array.length - 1; i++) {
-
-        if (value >= array[i] && value <= array[i + 1]) {
-
-            return {
-
-                low: array[i],
-
-                high: array[i + 1],
+                highIndex:i+1,
 
                 ratio:
 
-                    (value - array[i]) /
+                    (value-values[i])
 
-                    (array[i + 1] - array[i])
+                    /
+
+                    (values[i+1]-values[i])
 
             };
 
@@ -96,35 +89,74 @@ function bounds(value, array) {
 
     }
 
+
+
+    /*
+    ----------------------------------------
+    Above maximum
+
+    Linear extrapolation
+
+    ----------------------------------------
+    */
+
+    const last=
+
+        values.length-1;
+
+
+
+    return{
+
+        lowIndex:last-1,
+
+        highIndex:last,
+
+        ratio:
+
+            (value-values[last-1])
+
+            /
+
+            (values[last]-values[last-1])
+
+    };
+
 }
 
-function interpolateTemperature(values, temp) {
 
-    const t = bounds(
 
-        temp,
+/*
+========================================================
+Temperature interpolation
+========================================================
+*/
 
-        AFM.temperatures
+function interpolateTemperature(
 
-    );
+    row,
 
-    const lowIndex =
+    temperature
 
-        AFM.temperatures.indexOf(t.low);
+){
 
-    const highIndex =
+    const t=
 
-        AFM.temperatures.indexOf(t.high);
+        findBounds(
 
-    const lowValue = values[lowIndex];
+            temperature,
 
-    const highValue = values[highIndex];
+            AFM_DATA.temperatures
+
+        );
+
+
 
     return lerp(
 
-        lowValue,
+        row[t.lowIndex],
 
-        highValue,
+        row[t.highIndex],
 
         t.ratio
 
@@ -132,87 +164,155 @@ function interpolateTemperature(values, temp) {
 
 }
 
-function interpolateAltitude(table, altitude, temperature) {
 
-    const a = bounds(
 
-        altitude,
+/*
+========================================================
+Pressure altitude interpolation
+========================================================
+*/
 
-        AFM.altitudes
+function interpolatePressureAltitude(
 
-    );
+    table,
 
-    const lowTempValue =
+    pressureAltitude,
+
+    temperature
+
+){
+
+    const a=
+
+        findBounds(
+
+            pressureAltitude,
+
+            AFM_DATA.pressureAltitudes
+
+        );
+
+
+
+    const low=
 
         interpolateTemperature(
 
-            table[a.low],
+            table[a.lowIndex],
 
             temperature
 
         );
 
-    const highTempValue =
+
+
+    const high=
 
         interpolateTemperature(
 
-            table[a.high],
+            table[a.highIndex],
 
             temperature
 
         );
+
+
 
     return lerp(
 
-        lowTempValue,
+        low,
 
-        highTempValue,
+        high,
 
         a.ratio
 
     );
 
 }
+/*
+========================================================
+Weight interpolation
 
-function interpolateWeight(dataset, weight, altitude, temperature) {
+907–1089 kg interpolation
 
-    const w = bounds(
+1089–1157 kg extrapolation
 
-        weight,
+========================================================
+*/
 
-        AFM.weights
+function interpolateWeight(
 
-    );
+    dataset,
 
-    const lowWeightValue =
+    weight,
 
-        interpolateAltitude(
+    pressureAltitude,
 
-            dataset[w.low],
+    temperature
 
-            altitude,
+){
+
+    const w=
+
+        findBounds(
+
+            weight,
+
+            AFM_DATA.weights
+
+        );
+
+
+
+    const lowValue=
+
+        interpolatePressureAltitude(
+
+            dataset[
+
+                AFM_DATA.weights[
+
+                    w.lowIndex
+
+                ]
+
+            ],
+
+            pressureAltitude,
 
             temperature
 
         );
 
-    const highWeightValue =
 
-        interpolateAltitude(
 
-            dataset[w.high],
+    const highValue=
 
-            altitude,
+        interpolatePressureAltitude(
+
+            dataset[
+
+                AFM_DATA.weights[
+
+                    w.highIndex
+
+                ]
+
+            ],
+
+            pressureAltitude,
 
             temperature
 
         );
+
+
 
     return lerp(
 
-        lowWeightValue,
+        lowValue,
 
-        highWeightValue,
+        highValue,
 
         w.ratio
 
@@ -220,51 +320,70 @@ function interpolateWeight(dataset, weight, altitude, temperature) {
 
 }
 
+
+
+/*
+========================================================
+Takeoff calculation
+
+========================================================
+*/
+
 function calculateTakeoff(
+
+    dataset,
 
     weight,
 
-    altitude,
+    pressureAltitude,
 
     temperature,
 
-    safetyFactor
+    safetyFactor=100
 
-) {
+){
 
-    const ground = interpolateWeight(
+    const ground=
 
-        AFM.groundRoll,
+        interpolateWeight(
 
-        weight,
+            dataset.groundRoll,
 
-        altitude,
+            weight,
 
-        temperature
+            pressureAltitude,
 
-    );
+            temperature
 
-    const obstacle = interpolateWeight(
+        );
 
-        AFM.obstacle15m,
 
-        weight,
 
-        altitude,
+    const obstacle=
 
-        temperature
+        interpolateWeight(
 
-    );
+            dataset.obstacle15m,
 
-    return {
+            weight,
+
+            pressureAltitude,
+
+            temperature
+
+        );
+
+
+
+    return{
 
         ground:
 
             Math.round(
 
-                ground *
+                ground*
 
-                safetyFactor /
+                safetyFactor/
 
                 100
 
@@ -274,9 +393,9 @@ function calculateTakeoff(
 
             Math.round(
 
-                obstacle *
+                obstacle*
 
-                safetyFactor /
+                safetyFactor/
 
                 100
 
