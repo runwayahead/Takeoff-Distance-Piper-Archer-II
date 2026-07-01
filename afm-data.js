@@ -1,7 +1,7 @@
 // Piper PA-28-181 Archer II AFM Data
 // Flaps UP (Normal Takeoff)
 
-export const AFM_DATA = {
+ const AFM_DATA = {
   weights: [907, 953, 998, 1043, 1089],
 
   pressureAltitudes: [
