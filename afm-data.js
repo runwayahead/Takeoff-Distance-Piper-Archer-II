@@ -313,7 +313,6 @@ export const AFM_DATA = {
         [775,840,900,970,1045,1125,1215]
       ]
     }
-  }
-};
+  };
 
 export default AFM_DATA;     
