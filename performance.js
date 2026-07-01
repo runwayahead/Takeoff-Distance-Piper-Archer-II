@@ -1,24 +1,26 @@
 /*
 ========================================================
 
-TakeoffPro V2.1
+TakeoffPro V3.0
 
 performance.js
 
-C172 TAE125-02-114
+Piper PA-28-181 Archer II
 
 AFM based
 
-1111 kg
-1134 kg
-1157 kg
+Flaps UP
+Flaps 25°
 
-Interpolation:
-Weight
-Pressure Altitude
-Temperature
+907 kg
+953 kg
+998 kg
+1043 kg
+1089 kg
 
-No extrapolation
+Linear extrapolation
+
+1089 → 1157 kg
 
 ========================================================
 */
@@ -26,15 +28,17 @@ No extrapolation
 
 /*
 ========================================================
-Limits
+Performance Limits
 ========================================================
 */
 
-const PERFORMANCE_LIMITS = {
+const PERFORMANCE_LIMITS={
 
-    afmMinWeight:1111,
+    afmMinWeight:907,
 
-    afmMaxWeight:1111,
+    afmInterpolationMaxWeight:1089,
+
+    afmMaxWeight:1157,
 
     minPressureAltitude:0,
 
@@ -61,11 +65,13 @@ function roundMeter(value){
 }
 
 
+
 function applyPercent(value,percent){
 
     return value*(1+(percent/100));
 
 }
+
 
 
 function reservePercent(runway,required){
@@ -84,16 +90,7 @@ function reservePercent(runway,required){
 
 /*
 ========================================================
-AFM Weight
-
-below 1111 kg
-
-=> use 1111 kg
-
-above 1157 kg
-
-=> invalid
-
+Weight Helper
 ========================================================
 */
 
@@ -102,15 +99,9 @@ function getAFMWeight(weight){
     return Number(weight);
 
 }
-
-
-
 /*
 ========================================================
 Validation
-
-No extrapolation
-
 ========================================================
 */
 
@@ -126,8 +117,6 @@ function validateAFM(
 
     let message=[];
 
-
-
     if(
 
         weight>
@@ -138,13 +127,11 @@ function validateAFM(
 
         message.push(
 
-            "Weight above AFM range"
+            "Maximum Takeoff Weight exceeded"
 
         );
 
     }
-
-
 
     if(
 
@@ -162,8 +149,6 @@ function validateAFM(
 
     }
 
-
-
     if(
 
         pressureAltitude>
@@ -179,8 +164,6 @@ function validateAFM(
         );
 
     }
-
-
 
     if(
 
@@ -198,8 +181,6 @@ function validateAFM(
 
     }
 
-
-
     if(
 
         temperature>
@@ -216,17 +197,15 @@ function validateAFM(
 
     }
 
-
-
     return{
 
         valid:
 
-        message.length===0,
+            message.length===0,
 
         message:
 
-        message.join("<br>")
+            message.join("<br>")
 
     };
 
@@ -237,85 +216,34 @@ function validateAFM(
 /*
 ========================================================
 Weight Information
-
 ========================================================
 */
 
 function updateWeightInfo(
 
-    inputWeight,
-
-    afmWeight
+    inputWeight
 
 ){
 
     const field=
 
-    document.getElementById(
+        document.getElementById(
 
-        "weightInterpolation"
+            "weightInterpolation"
 
-    );
-
-
-
-    if(inputWeight<1111){
-
-        field.innerHTML=
-
-        "Takeoff Weight "
-
-        +
-
-        inputWeight
-
-        +
-
-        " kg<br>"
-
-        +
-
-        "AFM Basis 1111 kg"
-
-        +
-
-        " (conservative)";
-
-        return;
-
-    }
+        );
 
 
 
-    if(afmWeight===1111){
+    if(
+
+        inputWeight<=907
+
+    ){
 
         field.innerHTML=
 
-        "AFM direct 1111 kg";
-
-        return;
-
-    }
-
-
-
-    if(afmWeight===1134){
-
-        field.innerHTML=
-
-        "AFM direct 1134 kg";
-
-        return;
-
-    }
-
-
-
-    if(afmWeight===1157){
-
-        field.innerHTML=
-
-        "AFM direct 1157 kg";
+            "AFM direct 907 kg";
 
         return;
 
@@ -325,55 +253,13 @@ function updateWeightInfo(
 
     if(
 
-        afmWeight>1111 &&
-
-        afmWeight<1134
+        inputWeight>=1089
 
     ){
 
-        const upper=
-
-        ((
-
-        afmWeight-1111
-
-        )/
-
-        23)*100;
-
-
-
-        const lower=
-
-        100-upper;
-
-
-
         field.innerHTML=
 
-        "1111 kg "
-
-        +
-
-        lower.toFixed(0)
-
-        +
-
-        "%<br>"
-
-        +
-
-        "1134 kg "
-
-        +
-
-        upper.toFixed(0)
-
-        +
-
-        "%";
-
-
+            "AFM 1089 kg<br>Linear extrapolation";
 
         return;
 
@@ -381,39 +267,95 @@ function updateWeightInfo(
 
 
 
-    if(
+    const weights=
 
-        afmWeight>1134 &&
+        AFM_DATA.weights;
 
-        afmWeight<1157
+
+
+    let lower=
+
+        weights[0];
+
+
+
+    let upper=
+
+        weights[1];
+
+
+
+    for(
+
+        let i=0;
+
+        i<weights.length-1;
+
+        i++
 
     ){
 
-        const upper=
+        if(
 
-        ((
+            inputWeight>=weights[i]
 
-        afmWeight-1134
+            &&
 
-        )/
+            inputWeight<=weights[i+1]
 
-        23)*100;
+        ){
 
+            lower=
 
-
-        const lower=
-
-        100-upper;
+                weights[i];
 
 
 
-        field.innerHTML=
+            upper=
 
-        "1134 kg "
+                weights[i+1];
+
+
+
+            break;
+
+        }
+
+    }
+
+
+
+    const upperPercent=
+
+        (
+
+            (inputWeight-lower)
+
+            /
+
+            (upper-lower)
+
+        )*100;
+
+
+
+    const lowerPercent=
+
+        100-upperPercent;
+
+
+
+    field.innerHTML=
+
+        lower
 
         +
 
-        lower.toFixed(0)
+        " kg "
+
+        +
+
+        lowerPercent.toFixed(0)
 
         +
 
@@ -421,17 +363,19 @@ function updateWeightInfo(
 
         +
 
-        "1157 kg "
+        upper
 
         +
 
-        upper.toFixed(0)
+        " kg "
+
+        +
+
+        upperPercent.toFixed(0)
 
         +
 
         "%";
-
-    }
 
 }
 /*
@@ -442,35 +386,27 @@ Ground Roll
 
 Takeoff Distance 15 m
 
-Uses interpolation.js
-
 ========================================================
 */
 
 function calculateAFMPerformance(
 
     inputWeight,
+
     pressureAltitude,
+
     temperature
 
 ){
 
-    const afmWeight =
-
-        getAFMWeight(
-
-            inputWeight
-
-        );
-
-
-
-    const validation =
+    const validation=
 
         validateAFM(
 
             inputWeight,
+
             pressureAltitude,
+
             temperature
 
         );
@@ -487,9 +423,7 @@ function calculateAFMPerformance(
 
             groundRoll:0,
 
-            obstacle15m:0,
-
-            afmWeight:afmWeight
+            obstacle15m:0
 
         };
 
@@ -497,13 +431,63 @@ function calculateAFMPerformance(
 
 
 
-    const groundRoll =
+    /*
+    ====================================================
+    Procedure
+
+    normal -> Flaps UP
+
+    short -> Flaps 25°
+
+    ====================================================
+    */
+
+    const procedure=
+
+        document.getElementById(
+
+            "procedure"
+
+        ).value;
+
+
+
+    let afmDatabase;
+
+
+
+    if(procedure==="short"){
+
+        afmDatabase=
+
+            AFM_DATA.flaps25;
+
+    }
+
+    else{
+
+        afmDatabase=
+
+            AFM_DATA.flapsUp;
+
+    }
+
+
+
+    /*
+    ====================================================
+    AFM Calculation
+
+    ====================================================
+    */
+
+    const groundRoll=
 
         interpolateWeight(
 
-            AFM.groundRoll,
+            afmDatabase.groundRoll,
 
-            afmWeight,
+            inputWeight,
 
             pressureAltitude,
 
@@ -513,13 +497,13 @@ function calculateAFMPerformance(
 
 
 
-    const obstacle15m =
+    const obstacle15m=
 
         interpolateWeight(
 
-            AFM.obstacle15m,
+            afmDatabase.obstacle15m,
 
-            afmWeight,
+            inputWeight,
 
             pressureAltitude,
 
@@ -537,18 +521,16 @@ function calculateAFMPerformance(
 
         obstacle15m:obstacle15m,
 
-        afmWeight:afmWeight
+        afmWeight:inputWeight,
+
+        procedure:procedure
 
     };
 
 }
-
-
-
 /*
 ========================================================
 Update AFM Output
-
 ========================================================
 */
 
@@ -629,7 +611,6 @@ function updateAFMOutput(result){
 /*
 ========================================================
 Calculation Tree
-
 ========================================================
 */
 
@@ -637,7 +618,9 @@ function createCalculationTree(
 
     ground,
 
-    obstacle
+    obstacle,
+
+    procedure
 
 ){
 
@@ -653,11 +636,27 @@ function createCalculationTree(
 
 
 
+    tree.push("");
+
+
+
     tree.push(
 
-        ""
+        procedure==="short"
+
+        ?
+
+        "Procedure : Short Field (Flaps 25°)"
+
+        :
+
+        "Procedure : Normal (Flaps UP)"
 
     );
+
+
+
+    tree.push("");
 
 
 
@@ -738,7 +737,9 @@ function calculateCorrectedPerformance(result){
 
         ground,
 
-        obstacle
+        obstacle,
+
+        result.procedure
 
     );
 
@@ -747,20 +748,16 @@ function calculateCorrectedPerformance(result){
     /*
     ====================================================
     Wind
-
-    Headwind:
-    -10 % per 9 kt
-
-    Tailwind:
-    +10 % per 2 kt
-    max 10 kt
-
     ====================================================
     */
 
-    const wind=updateWind();
+    const wind=
 
-    const windPercent=wind.correction;
+        updateWind();
+
+    const windPercent=
+
+        wind.correction;
 
     ground=
 
@@ -804,7 +801,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(ground)
+        roundMeter(
+
+            ground
+
+        )
 
         +
 
@@ -818,7 +819,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(obstacle)
+        roundMeter(
+
+            obstacle
+
+        )
 
         +
 
@@ -831,7 +836,6 @@ function calculateCorrectedPerformance(result){
     /*
     ====================================================
     Surface
-
     ====================================================
     */
 
@@ -913,7 +917,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(ground)
+        roundMeter(
+
+            ground
+
+        )
 
         +
 
@@ -927,7 +935,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(obstacle)
+        roundMeter(
+
+            obstacle
+
+        )
 
         +
 
@@ -941,20 +953,16 @@ function calculateCorrectedPerformance(result){
     ====================================================
     Procedure
 
+    AFM already selected
+
+    Safety Margin remains
+
     ====================================================
     */
 
-    const procedure=
-
-        document.getElementById(
-
-            "procedure"
-
-        ).value;
-
     let procedurePercent=0;
 
-    switch(procedure){
+    switch(result.procedure){
 
         case "normal":
 
@@ -1016,7 +1024,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(ground)
+        roundMeter(
+
+            ground
+
+        )
 
         +
 
@@ -1030,17 +1042,18 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(obstacle)
+        roundMeter(
+
+            obstacle
+
+        )
 
         +
 
         " m"
 
     );
-
-
-
-    /*
+        /*
     ====================================================
     Slope
 
@@ -1065,9 +1078,13 @@ function calculateCorrectedPerformance(result){
 
         );
 
+
+
     const slopePercent=
 
         slope*10;
+
+
 
     ground=
 
@@ -1079,6 +1096,8 @@ function calculateCorrectedPerformance(result){
 
         );
 
+
+
     obstacle=
 
         applyPercent(
@@ -1089,7 +1108,11 @@ function calculateCorrectedPerformance(result){
 
         );
 
+
+
     tree.push("");
+
+
 
     tree.push(
 
@@ -1105,19 +1128,27 @@ function calculateCorrectedPerformance(result){
 
     );
 
+
+
     tree.push(
 
         "Ground Roll : "
 
         +
 
-        roundMeter(ground)
+        roundMeter(
+
+            ground
+
+        )
 
         +
 
         " m"
 
     );
+
+
 
     tree.push(
 
@@ -1125,7 +1156,11 @@ function calculateCorrectedPerformance(result){
 
         +
 
-        roundMeter(obstacle)
+        roundMeter(
+
+            obstacle
+
+        )
 
         +
 
@@ -1134,6 +1169,13 @@ function calculateCorrectedPerformance(result){
     );
 
 
+
+    /*
+    ====================================================
+    Result
+
+    ====================================================
+    */
 
     return{
 
@@ -1166,42 +1208,63 @@ function updateFinalPerformance(result){
     if(!result.valid){
 
         document.getElementById(
+
             "finalDistance"
+
         ).innerHTML="AFM LIMIT";
 
+
+
         document.getElementById(
+
             "remainingDistance"
+
         ).innerHTML="---";
 
-        document.getElementById(
-            "statusBadge"
-        ).innerHTML="AFM LIMIT";
+
 
         document.getElementById(
+
+            "statusBadge"
+
+        ).innerHTML="AFM LIMIT";
+
+
+
+        document.getElementById(
+
             "calculationTree"
-        ).innerHTML=result.message;
+
+        ).innerHTML=
+
+            result.message;
+
+
 
         return;
 
     }
 
 
+
     /*
     ====================================================
     Runway
-
     ====================================================
     */
 
-    const runwayLength=Number(
+    const runwayLength=
 
-        document.getElementById(
+        Number(
 
-            "runwayLength"
+            document.getElementById(
 
-        ).value
+                "runwayLength"
 
-    );
+            ).value
+
+        );
+
 
 
     const required=
@@ -1213,14 +1276,10 @@ function updateFinalPerformance(result){
         );
 
 
+
     const remaining=
 
-        runwayLength-required;
-
-
-    const reserve=
-
-        reservePercent(
+        calculateRemainingDistance(
 
             runwayLength,
 
@@ -1229,10 +1288,22 @@ function updateFinalPerformance(result){
         );
 
 
+
+    const reserve=
+
+        calculateReserve(
+
+            runwayLength,
+
+            required
+
+        );
+
+
+
     /*
     ====================================================
     Output
-
     ====================================================
     */
 
@@ -1243,6 +1314,7 @@ function updateFinalPerformance(result){
     ).innerHTML=
 
         required+" m";
+
 
 
     document.getElementById(
@@ -1258,6 +1330,7 @@ function updateFinalPerformance(result){
         )+" m";
 
 
+
     document.getElementById(
 
         "calculationTree"
@@ -1267,10 +1340,10 @@ function updateFinalPerformance(result){
         result.calculationTree;
 
 
+
     /*
     ====================================================
     Status
-
     ====================================================
     */
 
@@ -1283,11 +1356,14 @@ function updateFinalPerformance(result){
         );
 
 
+
     badge.classList.remove(
 
         "safe"
 
     );
+
+
 
     badge.classList.remove(
 
@@ -1295,11 +1371,14 @@ function updateFinalPerformance(result){
 
     );
 
+
+
     badge.classList.remove(
 
         "danger"
 
     );
+
 
 
     if(reserve>=40){
@@ -1309,6 +1388,8 @@ function updateFinalPerformance(result){
             "safe"
 
         );
+
+
 
         badge.innerHTML=
 
@@ -1322,9 +1403,12 @@ function updateFinalPerformance(result){
 
             "%";
 
+
+
         return;
 
     }
+
 
 
     if(
@@ -1341,6 +1425,8 @@ function updateFinalPerformance(result){
 
         );
 
+
+
         badge.innerHTML=
 
             "CAUTION<br>"
@@ -1353,9 +1439,12 @@ function updateFinalPerformance(result){
 
             "%";
 
+
+
         return;
 
     }
+
 
 
     badge.classList.add(
@@ -1363,6 +1452,8 @@ function updateFinalPerformance(result){
         "danger"
 
     );
+
+
 
     badge.innerHTML=
 
@@ -1432,17 +1523,14 @@ function calculateReserve(
 /*
 ========================================================
 Main Performance Update
-
 ========================================================
 */
 
 function updatePerformance(){
 
-
     /*
     ====================================================
     Input
-
     ====================================================
     */
 
@@ -1458,14 +1546,6 @@ function updatePerformance(){
 
         );
 
-
-    const afmWeight=
-
-        getAFMWeight(
-
-            inputWeight
-
-        );
 
 
     const temperature=
@@ -1485,13 +1565,13 @@ function updatePerformance(){
     /*
     ====================================================
     Atmosphere
-
     ====================================================
     */
 
     const atmosphere=
 
         updateAtmosphere();
+
 
 
     const pressureAltitude=
@@ -1503,15 +1583,12 @@ function updatePerformance(){
     /*
     ====================================================
     Weight Information
-
     ====================================================
     */
 
     updateWeightInfo(
 
-        inputWeight,
-
-        afmWeight
+        inputWeight
 
     );
 
@@ -1519,8 +1596,7 @@ function updatePerformance(){
 
     /*
     ====================================================
-    AFM Calculation
-
+    AFM
     ====================================================
     */
 
@@ -1537,11 +1613,13 @@ function updatePerformance(){
         );
 
 
+
     updateAFMOutput(
 
         afm
 
     );
+
 
 
     if(!afm.valid){
@@ -1555,6 +1633,7 @@ function updatePerformance(){
             "AFM LIMIT";
 
 
+
         document.getElementById(
 
             "remainingDistance"
@@ -1564,6 +1643,7 @@ function updatePerformance(){
             "---";
 
 
+
         document.getElementById(
 
             "statusBadge"
@@ -1571,6 +1651,7 @@ function updatePerformance(){
         ).innerHTML=
 
             "AFM LIMIT";
+
 
 
         document.getElementById(
@@ -1590,7 +1671,6 @@ function updatePerformance(){
     /*
     ====================================================
     Wind
-
     ====================================================
     */
 
@@ -1600,8 +1680,7 @@ function updatePerformance(){
 
     /*
     ====================================================
-    Apply Corrections
-
+    Corrections
     ====================================================
     */
 
@@ -1618,7 +1697,6 @@ function updatePerformance(){
     /*
     ====================================================
     Final Output
-
     ====================================================
     */
 
@@ -1635,7 +1713,6 @@ function updatePerformance(){
 /*
 ========================================================
 Refresh
-
 ========================================================
 */
 
@@ -1650,7 +1727,6 @@ function refreshPerformance(){
 /*
 ========================================================
 Reset
-
 ========================================================
 */
 
@@ -1663,11 +1739,13 @@ function resetPerformance(){
     ).innerHTML="---";
 
 
+
     document.getElementById(
 
         "takeoffDistance"
 
     ).innerHTML="---";
+
 
 
     document.getElementById(
@@ -1677,6 +1755,7 @@ function resetPerformance(){
     ).innerHTML="---";
 
 
+
     document.getElementById(
 
         "remainingDistance"
@@ -1684,11 +1763,13 @@ function resetPerformance(){
     ).innerHTML="---";
 
 
+
     document.getElementById(
 
         "calculationTree"
 
     ).innerHTML="";
+
 
 
     document.getElementById(
@@ -1704,15 +1785,6 @@ function resetPerformance(){
 /*
 ========================================================
 Weight Validation
-
-Only weight above AFM maximum
-
-is highlighted.
-
-Below 1111 kg
-
-=> conservative 1111 kg AFM
-
 ========================================================
 */
 
@@ -1731,13 +1803,10 @@ function validateWeightInput(){
         );
 
 
-    if(
 
-        weight>
+    if(weight>
 
-        PERFORMANCE_LIMITS.afmMaxWeight
-
-    ){
+        PERFORMANCE_LIMITS.afmMaxWeight){
 
         document.getElementById(
 
@@ -1762,7 +1831,7 @@ function validateWeightInput(){
 }
 /*
 ========================================================
-TakeoffPro V2.1
+TakeoffPro V3.0
 
 Live Integration
 
@@ -1953,19 +2022,23 @@ Version
 
 const TAKEOFFPRO_VERSION={
 
-    app:"2.1",
+    app:"3.0",
 
     aircraft:
 
-    "C172 TAE125-02-114",
+    "Piper PA-28-181 Archer II",
 
     afmWeights:[
 
-        1111,
+        907,
 
-        1134,
+        953,
 
-        1157
+        998,
+
+        1043,
+
+        1089
 
     ],
 
@@ -1981,9 +2054,9 @@ const TAKEOFFPRO_VERSION={
 
     weightLogic:
 
-       "<1111 kg = linear extrapolation",
+        "907-1089 kg interpolation / 1089-1157 kg extrapolation",
 
-        extrapolation:true
+    extrapolation:true
 
 };
 
