@@ -326,5 +326,3 @@
   }
 
 };
-
-export default AFM_DATA;
